@@ -1,12 +1,13 @@
 import os
 
+import pandas as pd
 import numpy as np
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import pandas as pd
 
 
 def build_all_sector_csv(output_file_path: str, sectors: set[str]):
@@ -134,7 +135,14 @@ def build_sector_aggregation_csv(input_file_path: str, output_file_path: str):
     # print(df)
     # print(df.describe())
 
-    df.to_csv(output_file_path, index=False, mode="w")
+    # df.to_csv(output_file_path, index=False, mode="w")
+    print(df.columns)
+    # Merge the ranking back into the original DataFrame
+    full_df = full_df.merge(df[['Company', 'Record Type', 'rank_1yr', 'rank_5yr', 'rank_10yr', 'top_5_1yr',
+       'top_5_5yr', 'top_5_10yr']], on=['Company', 'Record Type'], how='left')
+    print(full_df)
+
+    full_df.to_csv(f'merged_{input_file_path}', index=False, mode="w")
 
     return df
 
