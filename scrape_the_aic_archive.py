@@ -11,26 +11,24 @@ from bs4 import BeautifulSoup
 
 
 def build_all_sector_csv(output_file_path: str, sectors: set[str]):
-    # Initialize the WebDriver (ensure you have the correct WebDriver installed)
-    driver = webdriver.Chrome()  # or another browser driver
-
     for sector in sectors:
         # URL of the webpage
         # url = "https://www.theaic.co.uk/aic/find-compare-investment-companies?sortid=Name&desc=false"  # unfiltered
         url = f"https://www.theaic.co.uk/aic/find-compare-investment-companies?sec={sector}&sortid=Name&desc=false"  # sector specific
-        # f"https://www.theaic.co.uk/aic/find-compare-investment-companies?sec=ASP&sortid=Name&desc=false"
-        f"https://www.theaic.co.uk/aic/find-compare-investment-companies?sortid=Name&desc=false"
-        print(f'scraping: {url}')
+
+        # Initialize the WebDriver (ensure you have the correct WebDriver installed)
+        driver = webdriver.Chrome()  # or another browser driver
         driver.get(url)
 
         # Wait until the table is loaded
         try:
-            element = WebDriverWait(driver, 30).until(
+            element = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, 'table[role="table"]'))
             )
         finally:
             # Parse the page source with BeautifulSoup
             soup = BeautifulSoup(driver.page_source, 'html.parser')
+            driver.quit()
 
         # Find the table
         table = soup.find('table', {'role': 'table'})
@@ -83,7 +81,6 @@ def build_all_sector_csv(output_file_path: str, sectors: set[str]):
         else:
             print("Table not found")
 
-    driver.quit()
     full_df = pd.read_csv(output_file_path)
     return full_df
 
